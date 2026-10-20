@@ -1,0 +1,3 @@
+# Built by `make pack`.
+*.shell-extension.zip
+__pycache__/

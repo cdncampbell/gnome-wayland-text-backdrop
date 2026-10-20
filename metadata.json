@@ -1,0 +1,6 @@
+{
+  "uuid": "kb16-cheatsheet@cdncampbell.github.io",
+  "name": "KB16 Cheat Sheet",
+  "description": "Shows the KeebMonkey KB16-01 macropad layer map on the desktop of the left-most monitor.",
+  "shell-version": ["50"]
+}
