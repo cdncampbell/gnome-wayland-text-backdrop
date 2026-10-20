@@ -15,6 +15,20 @@ Any UTF-8 text file works. Plain text is shown as-is. ANSI colour codes are draw
 
 Other escape sequences, like cursor movement, are dropped. The panel uses DejaVu Sans Mono, which covers box drawing and arrows, so column layouts line up.
 
+## Settings
+
+Open the settings from the Extensions app, or with `gnome-extensions prefs text-backdrop@cdncampbell.github.io`. Every change applies to the desktop straight away.
+
+| Setting | What it does |
+|---------|--------------|
+| Monitor | Which screen to draw on, remembered by connector (DP-1, DP-2...). **Auto** uses the left-most monitor, which is also the fallback when the chosen one isn't plugged in. |
+| Text file | The file to show. **Use built-in** goes back to the KB16 example. The desktop redraws when the file changes. If the file can't be read, a one-line note shows where the text would be, and the file is picked up once it appears (for example, when a drive mounts). |
+| Background opacity | The panel behind the text, 0–100%. 0 shows the text only. |
+| Padding | Space between the panel edge and the text, in pixels. |
+| Left margin, Top margin | Where the panel sits, measured from the monitor's top-left corner, in pixels. |
+
+The settings live in `schemas/org.gnome.shell.extensions.text-backdrop.gschema.xml`. The settings pane takes each label, description and range from there.
+
 ## Example: KB16 macropad cheat sheet
 
 `examples/kb16/` is the sheet this started as: the layer map of my KeebMonkey Megalodon (DOIO KB16-01) macropad, drawn with box drawing and 24-bit colour. It's the bundled default. See [keebmonkey-megaladon-kb16-01](https://github.com/cdncampbell/keebmonkey-megaladon-kb16-01) for the keyboard itself.
@@ -27,8 +41,11 @@ Other escape sequences, like cursor movement, are dropped. The panel uses DejaVu
 | Path | What it is |
 |------|------------|
 | `extension.js`, `stylesheet.css`, `metadata.json` | The extension. |
+| `prefs.js` | The settings pane. |
+| `schemas/` | The settings and their defaults. |
 | `ansi.js` | Converts ANSI colour codes to Pango markup for the desktop label. |
-| `tests/ansi.test.js` | Parser tests, plus a check that the bundled example is valid Pango markup. |
+| `panel.js` | Picks the monitor and builds the panel style. It has no shell imports, so it can be tested. |
+| `tests/` | Parser and panel tests, plus a check that the bundled example is valid Pango markup. |
 | `examples/kb16/` | The KB16 example sheet and its generator. |
 
 ## Commands
