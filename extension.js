@@ -10,7 +10,7 @@ import {ansiToPango} from './ansi.js';
 import {panelStyle, pickMonitor} from './panel.js';
 
 const BUILT_IN_SHEET = 'kb16-cheat-sheet.ans';
-// Editors save in bursts of events; wait this long so one save is one redraw.
+// Editors save in bursts of events; redraw this long after the last one, so one save is one redraw.
 const RELOAD_DELAY_MS = 200;
 
 export default class TextBackdropExtension extends Extension {
@@ -80,22 +80,26 @@ export default class TextBackdropExtension extends Extension {
         const path = this._settings.get_string('sheet-path');
         this._sheet = path ? Gio.File.new_for_path(path) : this.dir.get_child(BUILT_IN_SHEET);
         this._sheetMonitor = this._sheet.monitor_file(Gio.FileMonitorFlags.NONE, null);
-        this._sheetMonitor.connect('changed', () => this._scheduleReload());
+        this._sheetChangedId = this._sheetMonitor.connect('changed', () => this._scheduleReload());
         this._loadSheet();
     }
 
     _unwatchSheet() {
         if (this._reloadId) {
-            GLib.source_remove(this._reloadId);
+            GLib.Source.remove(this._reloadId);
             this._reloadId = 0;
         }
-        this._sheetMonitor?.cancel();
-        this._sheetMonitor = null;
+        if (this._sheetMonitor) {
+            this._sheetMonitor.disconnect(this._sheetChangedId);
+            this._sheetMonitor.cancel();
+            this._sheetMonitor = null;
+        }
+        this._sheet = null;
     }
 
     _scheduleReload() {
         if (this._reloadId)
-            return;
+            GLib.Source.remove(this._reloadId);
         this._reloadId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, RELOAD_DELAY_MS, () => {
             this._reloadId = 0;
             this._loadSheet();

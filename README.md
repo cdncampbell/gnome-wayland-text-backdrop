@@ -60,3 +60,7 @@ gnome-extensions enable text-backdrop@cdncampbell.github.io   # once, after the 
 On Wayland the shell can't restart in place, so it only picks up a new or changed extension at login.
 
 The extension uses `Main.layoutManager._backgroundGroup` to sit under the windows. It's private shell API, so when GNOME moves to a new major version, check that first, then add the version to `shell-version` in `metadata.json`.
+
+## License
+
+GPL-2.0-or-later, the same terms as GNOME Shell. The full text of version 2 is in `LICENSE`.

@@ -3,5 +3,6 @@
   "name": "Text Backdrop",
   "description": "Shows a text file, plain or with ANSI colours, as part of the desktop background on GNOME Wayland. A conky-like desktop panel that works without layer-shell.",
   "shell-version": ["50"],
-  "settings-schema": "org.gnome.shell.extensions.text-backdrop"
+  "settings-schema": "org.gnome.shell.extensions.text-backdrop",
+  "url": "https://github.com/cdncampbell/gnome-wayland-text-backdrop"
 }
