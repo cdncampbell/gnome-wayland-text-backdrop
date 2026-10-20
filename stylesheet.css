@@ -1,9 +1,7 @@
-/* A dark panel behind the text, so the layer colours read on any wallpaper. */
-.kb16-cheatsheet {
+/* The panel's background and padding come from the settings (see panel.js). */
+.text-backdrop {
     font-family: "DejaVu Sans Mono", monospace;
     font-size: 15px;
     color: #e7ecf3;
-    background-color: rgba(15, 19, 26, 0.86);
-    padding: 20px 24px;
     border-radius: 16px;
 }
