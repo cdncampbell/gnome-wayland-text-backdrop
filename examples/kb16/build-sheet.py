@@ -8,7 +8,7 @@ too and run `make sheet`.
 import re
 from pathlib import Path
 
-OUT = Path(__file__).resolve().parent.parent / "kb16-cheat-sheet.ans"
+OUT = Path(__file__).resolve().parent / "kb16-cheat-sheet.ans"
 
 # The dark-theme colours from the HTML cheat sheet, as 24-bit colour so the
 # terminal and the desktop show the same shades as the pad's LEDs whatever

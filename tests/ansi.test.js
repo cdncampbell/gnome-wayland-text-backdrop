@@ -31,15 +31,16 @@ for (const [name, input, expected] of cases) {
     }
 }
 
-// The shipped sheet must convert to markup Pango accepts; set_markup on a
-// label fails quietly and shows nothing, so catch it here instead.
-const sheet = Gio.File.new_for_uri(import.meta.url).get_parent().get_parent().get_child('kb16-cheat-sheet.ans');
+// The bundled example sheet must convert to markup Pango accepts; set_markup
+// on a label fails quietly and shows nothing, so catch it here instead.
+const sheet = Gio.File.new_for_uri(import.meta.url).get_parent().get_parent()
+    .resolve_relative_path('examples/kb16/kb16-cheat-sheet.ans');
 const [, bytes] = sheet.load_contents(null);
 try {
     Pango.parse_markup(ansiToPango(new TextDecoder().decode(bytes)), -1, '\0');
 } catch (e) {
     failed++;
-    print(`FAIL kb16-cheat-sheet.ans is not valid Pango markup: ${e.message}`);
+    print(`FAIL the KB16 example sheet is not valid Pango markup: ${e.message}`);
 }
 
 print(failed ? `${failed} failed` : `all ${cases.length + 1} passed`);

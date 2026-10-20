@@ -9,11 +9,11 @@ import {ansiToPango} from './ansi.js';
 const SHEET = 'kb16-cheat-sheet.ans';
 const MARGIN = 48;
 
-export default class Kb16CheatSheetExtension extends Extension {
+export default class TextBackdropExtension extends Extension {
     enable() {
         const [, bytes] = this.dir.get_child(SHEET).load_contents(null);
 
-        this._label = new St.Label({style_class: 'kb16-cheatsheet'});
+        this._label = new St.Label({style_class: 'text-backdrop'});
         // St.Label ellipsizes by default; the sheet is laid out to exact
         // columns, so let it take its full natural width.
         this._label.clutter_text.ellipsize = Pango.EllipsizeMode.NONE;

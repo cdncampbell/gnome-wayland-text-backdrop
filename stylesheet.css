@@ -1,5 +1,5 @@
-/* A dark panel behind the text, so the layer colours read on any wallpaper. */
-.kb16-cheatsheet {
+/* A dark panel behind the text, so coloured text reads on any wallpaper. */
+.text-backdrop {
     font-family: "DejaVu Sans Mono", monospace;
     font-size: 15px;
     color: #e7ecf3;
