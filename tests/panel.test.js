@@ -14,14 +14,17 @@ const cases = [
     ['-1 (no connector, or not plugged in) falls back to left-most',
         () => pickMonitor(monitors, -1).name, 'left'],
     ['an out-of-range index falls back to left-most', () => pickMonitor(monitors, 7).name, 'left'],
-    ['opacity, padding and scale become inline CSS', () => panelStyle(86, 22, 100),
-        'font-family: "DejaVu Sans Mono", monospace; font-size: 15px; '
+    ['font, size, opacity and padding become inline CSS',
+        () => panelStyle({font_family: 'DejaVu Sans Mono', font_size: 11, scale_y: 100, opacity: 86, padding: 22}),
+        'font-family: "DejaVu Sans Mono", monospace; font-size: 11pt; '
         + 'background-color: rgba(15, 19, 26, 0.86); padding: 22px;'],
-    ['0% opacity leaves the text with no panel', () => panelStyle(0, 0, 100),
-        'font-family: "DejaVu Sans Mono", monospace; font-size: 15px; '
-        + 'background-color: rgba(15, 19, 26, 0); padding: 0px;'],
-    ['the scale sets the font size', () => panelStyle(86, 22, 150).match(/font-size: [^;]+/)[0],
-        'font-size: 22.5px'],
+    ['0% opacity leaves the text with no panel',
+        () => panelStyle({font_family: 'Iosevka', font_size: 10, scale_y: 100, opacity: 0, padding: 0}),
+        'font-family: "Iosevka", monospace; font-size: 10pt; background-color: rgba(15, 19, 26, 0); padding: 0px;'],
+    ['the scale multiplies the font size',
+        () => panelStyle({font_family: 'Iosevka', font_size: 12, scale_y: 150, opacity: 0, padding: 0})
+            .match(/font-size: [^;]+/)[0],
+        'font-size: 18pt'],
 ];
 
 let failed = 0;

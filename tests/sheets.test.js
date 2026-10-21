@@ -2,7 +2,8 @@
 import System from 'system';
 
 import {
-    FIELDS, MAX_NAME_LENGTH, MAX_SHEETS_PER_MONITOR, displayName, layout, newSheet, normalizeSheets, packSheets,
+    DEFAULT_FONT_FAMILY, FIELDS, MAX_NAME_LENGTH, MAX_SHEETS_PER_MONITOR, displayName, layout, newSheet,
+    normalizeSheets, packSheets,
 } from '../sheets.js';
 
 const sheet = (monitor, extra = {}) => ({...newSheet(monitor), ...extra});
@@ -11,9 +12,10 @@ const json = value => JSON.stringify(value);
 const cases = [
     ['a new sheet uses the field defaults and the built-in text',
         () => json(newSheet('DP-1')),
-        json({monitor: 'DP-1', path: '', name: '', lock_ratio: true, x: FIELDS.x.default, y: FIELDS.y.default,
-            opacity: FIELDS.opacity.default, padding: FIELDS.padding.default,
-            scale_x: FIELDS.scale_x.default, scale_y: FIELDS.scale_y.default})],
+        json({monitor: 'DP-1', path: '', name: '', font_family: DEFAULT_FONT_FAMILY, lock_ratio: true,
+            x: FIELDS.x.default, y: FIELDS.y.default, opacity: FIELDS.opacity.default,
+            padding: FIELDS.padding.default, scale_x: FIELDS.scale_x.default, scale_y: FIELDS.scale_y.default,
+            font_size: FIELDS.font_size.default})],
     ['missing fields are filled from the defaults',
         () => json(normalizeSheets([{monitor: 'DP-2', path: '/a.ans'}])),
         json([sheet('DP-2', {path: '/a.ans'})])],
@@ -47,6 +49,19 @@ const cases = [
     ['the built-in sheet is called Welcome text',
         () => displayName(sheet('DP-1')),
         'Welcome text'],
+    ['the default font is DejaVu Sans Mono at 11 pt',
+        () => `${newSheet('DP-1').font_family} ${newSheet('DP-1').font_size}`,
+        'DejaVu Sans Mono 11'],
+    ['font sizes are clamped to 6-72 pt',
+        () => json(normalizeSheets([sheet('DP-1', {font_size: 2}), sheet('DP-1', {font_size: 300})])
+            .map(s => s.font_size)),
+        json([6, 72])],
+    ['an empty or missing font family falls back to the default',
+        () => json(normalizeSheets([sheet('DP-1', {font_family: '  '}), {monitor: 'DP-1'}]).map(s => s.font_family)),
+        json([DEFAULT_FONT_FAMILY, DEFAULT_FONT_FAMILY])],
+    ['characters that could break the CSS are removed from the family',
+        () => normalizeSheets([sheet('DP-1', {font_family: 'Fira"; color: red; }{\\ Code'})])[0].font_family,
+        'Fira color: red  Code'],
     ['sheets without a monitor are dropped',
         () => normalizeSheets([{path: '/a.ans'}, sheet('')]).length,
         0],
@@ -61,8 +76,9 @@ const cases = [
         json([{sheet: sheet('DP-1'), monitorIndex: 2}])],
     ['packing round-trips through a GVariant',
         () => json(normalizeSheets(packSheets([sheet('DP-3', {path: '/b.txt', name: 'B', x: 5, scale_x: 150,
-            lock_ratio: false})]).recursiveUnpack())),
-        json([sheet('DP-3', {path: '/b.txt', name: 'B', x: 5, scale_x: 150, lock_ratio: false})])],
+            lock_ratio: false, font_family: 'Iosevka', font_size: 14})]).recursiveUnpack())),
+        json([sheet('DP-3', {path: '/b.txt', name: 'B', x: 5, scale_x: 150, lock_ratio: false,
+            font_family: 'Iosevka', font_size: 14})])],
     ['packed sheets have the setting\'s type',
         () => packSheets([]).get_type_string(),
         'aa{sv}'],

@@ -25,7 +25,7 @@ export function sheetRow({sheet, monitor, window, builtInFile, onChange, onRemov
     remove.connect('clicked', onRemove);
     row.add_suffix(remove);
 
-    const measure = () => naturalSize(window, sheet.path ? Gio.File.new_for_path(sheet.path) : builtInFile);
+    const measure = () => naturalSize(window, sheet.path ? Gio.File.new_for_path(sheet.path) : builtInFile, sheet);
     const size = sizeRows(sheet, measure, onChange);
 
     row.add_row(fileRow(sheet, window, () => {
@@ -33,6 +33,17 @@ export function sheetRow({sheet, monitor, window, builtInFile, onChange, onRemov
         header.refresh();
         onChange();
     }));
+    for (const fontRow of fontRows(sheet, window, () => {
+        size.remeasure();
+        onChange();
+    }))
+        row.add_row(fontRow);
+    // A new font size resets Scale, so the size picked is the size drawn.
+    row.add_row(fieldSlider(sheet, 'font_size', FIELDS.font_size.max, () => {
+        sheet.scale_x = sheet.scale_y = FIELDS.scale_y.default;
+        size.remeasure();
+        onChange();
+    }).row);
 
     // Left and top can't go past the monitor's own size.
     row.add_row(fieldSlider(sheet, 'x', monitor.width, onChange).row);
@@ -164,6 +175,45 @@ function clampTogether(value, field, ratio, otherField) {
     const lower = Math.max(field.min, otherField.min / ratio);
     const upper = Math.min(field.max, otherField.max / ratio);
     return clamp(Math.min(upper, Math.max(lower, value)), field);
+}
+
+// The font family, from GTK's font chooser. Box drawing, ANSI layouts and
+// markdown tables only line up in monospaced fonts, so the chooser lists
+// those unless Show all fonts is on. The switch isn't saved: it starts on
+// when the sheet already uses a proportional font, so that font stays listed.
+function fontRows(sheet, window, onFontChanged) {
+    const monospaceOnly = Gtk.CustomFilter.new(family => family.is_monospace);
+    const dialog = new Gtk.FontDialog({title: 'Choose a font', filter: monospaceOnly});
+    const button = new Gtk.FontDialogButton({
+        dialog,
+        level: Gtk.FontLevel.FAMILY,
+        font_desc: Pango.FontDescription.from_string(sheet.font_family),
+        use_font: true,
+        valign: Gtk.Align.CENTER,
+    });
+    button.connect('notify::font-desc', () => {
+        const family = button.font_desc.get_family();
+        if (!family || family === sheet.font_family)
+            return;
+        sheet.font_family = family;
+        onFontChanged();
+    });
+    const fontRow = new Adw.ActionRow({title: 'Font'});
+    fontRow.add_suffix(button);
+
+    const current = window.get_pango_context().list_families().find(f => f.get_name() === sheet.font_family);
+    const showAll = new Adw.SwitchRow({
+        title: 'Show all fonts',
+        subtitle: 'Columns and tables only line up in monospaced fonts',
+        active: current ? !current.is_monospace : false,
+    });
+    const applyFilter = () => {
+        dialog.filter = showAll.active ? null : monospaceOnly;
+    };
+    showAll.connect('notify::active', applyFilter);
+    applyFilter();
+
+    return [fontRow, showAll];
 }
 
 function fileRow(sheet, window, onPathChanged) {

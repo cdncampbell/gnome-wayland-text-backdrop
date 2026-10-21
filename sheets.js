@@ -1,5 +1,6 @@
 // The `sheets` setting: a list of
-// {monitor, path, name, lock_ratio, x, y, opacity, padding, scale_x, scale_y}.
+// {monitor, path, name, font_family, lock_ratio, x, y, opacity, padding,
+//  scale_x, scale_y, font_size}.
 // Used by both the shell and the settings window, so it imports only GLib.
 // GSettings can't range-check fields inside a dictionary, so the limits live
 // here and every read and write goes through normalizeSheets().
@@ -8,6 +9,9 @@ import GLib from 'gi://GLib';
 
 export const MAX_SHEETS_PER_MONITOR = 4;
 export const MAX_NAME_LENGTH = 60;
+
+// DejaVu Sans Mono covers box drawing and arrows, so column layouts line up.
+export const DEFAULT_FONT_FAMILY = 'DejaVu Sans Mono';
 
 // x and y are capped again by the monitor's size in the settings window.
 // scale_x and scale_y size the text against its natural size, so a sheet
@@ -19,12 +23,14 @@ export const FIELDS = {
     padding: {label: 'Padding', unit: 'px', default: 22, min: 0, max: 200},
     scale_x: {label: 'Horizontal scale', unit: '%', default: 100, min: 25, max: 400},
     scale_y: {label: 'Scale', unit: '%', default: 100, min: 25, max: 400},
+    // The size the scales multiply, in points like other GNOME font settings.
+    font_size: {label: 'Font size', unit: 'pt', default: 11, min: 6, max: 72},
 };
 
 // An empty path means the built-in welcome text, and an empty name means
 // the sheet is called after its file (see displayName).
 export function newSheet(monitor) {
-    const sheet = {monitor, path: '', name: '', lock_ratio: true};
+    const sheet = {monitor, path: '', name: '', font_family: DEFAULT_FONT_FAMILY, lock_ratio: true};
     for (const [name, field] of Object.entries(FIELDS))
         sheet[name] = field.default;
     return sheet;
@@ -52,6 +58,8 @@ export function normalizeSheets(sheets) {
             clean.path = sheet.path;
         if (typeof sheet.name === 'string')
             clean.name = sheet.name.trim().slice(0, MAX_NAME_LENGTH);
+        if (typeof sheet.font_family === 'string')
+            clean.font_family = cleanFontFamily(sheet.font_family);
         if (typeof sheet.lock_ratio === 'boolean')
             clean.lock_ratio = sheet.lock_ratio;
         for (const [name, field] of Object.entries(FIELDS))
@@ -61,12 +69,19 @@ export function normalizeSheets(sheets) {
     return normalized;
 }
 
+// The family goes into the panel's CSS inside quotes, so anything that could
+// end the string or the rule is dropped.
+function cleanFontFamily(family) {
+    return family.replace(/["\\;{}]/g, '').trim() || DEFAULT_FONT_FAMILY;
+}
+
 export function packSheets(sheets) {
     return new GLib.Variant('aa{sv}', normalizeSheets(sheets).map(sheet => {
         const packed = {
             monitor: new GLib.Variant('s', sheet.monitor),
             path: new GLib.Variant('s', sheet.path),
             name: new GLib.Variant('s', sheet.name),
+            font_family: new GLib.Variant('s', sheet.font_family),
             lock_ratio: new GLib.Variant('b', sheet.lock_ratio),
         };
         for (const name of Object.keys(FIELDS))
