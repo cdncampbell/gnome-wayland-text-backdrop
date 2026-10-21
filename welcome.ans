@@ -1,0 +1,15 @@
+[1;36mTEXT BACKDROP[0m
+
+Shows a text file on your desktop, behind every window.
+
+Open its settings from the Extensions app to choose:
+
+  [1mMonitor       [0m[90mwhich screen, or Auto for the left-most[0m
+  [1mText file     [0m[90many UTF-8 file; it redraws when the file changes[0m
+  [1mAppearance    [0m[90mbackground opacity, padding and margins[0m
+
+Plain text works as-is. ANSI colour codes are drawn in colour:
+
+  [91mred[0m  [92mgreen[0m  [93myellow[0m  [94mblue[0m  [1mbold[0m  [2mdim[0m  [38;2;255;140;0m24-bit orange[0m
+
+[90m  printf '\e[1;36mHello\e[0m\n' > ~/backdrop.txt[0m

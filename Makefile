@@ -13,7 +13,7 @@ test: sheet
 
 pack: test
 	gnome-extensions pack --force --schema=$(SCHEMA) \
-		--extra-source=ansi.js --extra-source=panel.js --extra-source=examples/kb16/kb16-cheat-sheet.ans .
+		--extra-source=ansi.js --extra-source=panel.js --extra-source=welcome.ans .
 
 install: pack
 	gnome-extensions install --force $(UUID).shell-extension.zip

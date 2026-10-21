@@ -10,7 +10,7 @@
     <key name="sheet-path" type="s">
       <default>''</default>
       <summary>Text file</summary>
-      <description>Path of the file to show. Empty means the built-in example.</description>
+      <description>Path of the file to show. Empty means the built-in welcome text.</description>
     </key>
     <key name="background-opacity" type="i">
       <range min="0" max="100"/>

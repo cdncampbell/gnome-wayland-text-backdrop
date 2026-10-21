@@ -22,7 +22,7 @@ Open the settings from the Extensions app, or with `gnome-extensions prefs text-
 | Setting | What it does |
 |---------|--------------|
 | Monitor | Which screen to draw on, remembered by connector (DP-1, DP-2...). **Auto** uses the left-most monitor, which is also the fallback when the chosen one isn't plugged in. |
-| Text file | The file to show. **Use built-in** goes back to the KB16 example. The desktop redraws when the file changes. If the file can't be read, a one-line note shows where the text would be, and the file is picked up once it appears (for example, when a drive mounts). |
+| Text file | The file to show. **Use built-in** goes back to the welcome text (`welcome.ans`). The desktop redraws when the file changes. If the file can't be read, a one-line note shows where the text would be, and the file is picked up once it appears (for example, when a drive mounts). |
 | Background opacity | The panel behind the text, 0–100%. 0 shows the text only. |
 | Padding | Space between the panel edge and the text, in pixels. |
 | Left margin, Top margin | Where the panel sits, measured from the monitor's top-left corner, in pixels. |
@@ -31,7 +31,7 @@ The settings live in `schemas/org.gnome.shell.extensions.text-backdrop.gschema.x
 
 ## Example: KB16 macropad cheat sheet
 
-`examples/kb16/` is the sheet this started as: the layer map of my KeebMonkey Megalodon (DOIO KB16-01) macropad, drawn with box drawing and 24-bit colour. It's the bundled default. See [keebmonkey-megaladon-kb16-01](https://github.com/cdncampbell/keebmonkey-megaladon-kb16-01) for the keyboard itself.
+`examples/kb16/` is the sheet this started as: the layer map of my KeebMonkey Megalodon (DOIO KB16-01) macropad, drawn with box drawing and 24-bit colour. It isn't packed into the extension; to use it, choose `examples/kb16/kb16-cheat-sheet.ans` as the Text file. See [keebmonkey-megaladon-kb16-01](https://github.com/cdncampbell/keebmonkey-megaladon-kb16-01) for the keyboard itself.
 
 - `examples/kb16/build-sheet.py` holds the layer data and generates `kb16-cheat-sheet.ans`. Don't edit the `.ans` by hand.
 - The layer data duplicates the printable cheat sheet in the keyboard repo, so a key change goes in both places.
@@ -45,7 +45,8 @@ The settings live in `schemas/org.gnome.shell.extensions.text-backdrop.gschema.x
 | `schemas/` | The settings and their defaults. |
 | `ansi.js` | Converts ANSI colour codes to Pango markup for the desktop label. |
 | `panel.js` | Picks the monitor and builds the panel style. It has no shell imports, so it can be tested. |
-| `tests/` | Parser and panel tests, plus a check that the bundled example is valid Pango markup. |
+| `welcome.ans` | The built-in text shown until a file is chosen. |
+| `tests/` | Parser and panel tests, plus a check that the welcome text and the KB16 example are valid Pango markup. |
 | `examples/kb16/` | The KB16 example sheet and its generator. |
 
 ## Commands

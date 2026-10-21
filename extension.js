@@ -9,7 +9,7 @@ import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import {ansiToPango} from './ansi.js';
 import {panelStyle, pickMonitor} from './panel.js';
 
-const BUILT_IN_SHEET = 'kb16-cheat-sheet.ans';
+const BUILT_IN_SHEET = 'welcome.ans';
 // Editors save in bursts of events; redraw this long after the last one, so one save is one redraw.
 const RELOAD_DELAY_MS = 200;
 
