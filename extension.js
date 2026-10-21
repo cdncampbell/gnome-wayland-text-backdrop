@@ -2,10 +2,9 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import {pickMonitor} from './panel.js';
+import {BUILT_IN_SHEET} from './render.js';
 import {SheetPanel} from './sheetPanel.js';
 import {layout, readSheets} from './sheets.js';
-
-const BUILT_IN_SHEET = 'welcome.ans';
 
 export default class TextBackdropExtension extends Extension {
     enable() {

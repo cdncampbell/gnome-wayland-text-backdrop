@@ -2,13 +2,14 @@ import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
 import Gtk from 'gi://Gtk';
 
-import {FIELDS} from '../sheets.js';
+import {FIELDS, clamp} from '../sheets.js';
+import {naturalSize} from './measure.js';
 
 const BUILT_IN_LABEL = 'Built-in welcome text';
 
-// The settings for one sheet: its file and four sliders. Edits change the
-// sheet object in place and then call onChange() to save the whole list.
-export function sheetGroup({index, sheet, monitor, window, onChange, onRemove}) {
+// The settings for one sheet: its file, position, size and look. Edits change
+// the sheet object in place and then call onChange() to save the whole list.
+export function sheetGroup({index, sheet, monitor, window, builtInFile, onChange, onRemove}) {
     const group = new Adw.PreferencesGroup({title: `Sheet ${index + 1}`});
 
     const remove = new Gtk.Button({
@@ -20,20 +21,102 @@ export function sheetGroup({index, sheet, monitor, window, onChange, onRemove}) 
     remove.connect('clicked', onRemove);
     group.set_header_suffix(remove);
 
-    group.add(fileRow(sheet, window, onChange));
+    const measure = () => naturalSize(window, sheet.path ? Gio.File.new_for_path(sheet.path) : builtInFile);
+    const size = sizeRows(sheet, measure, onChange);
+
+    group.add(fileRow(sheet, window, () => {
+        size.remeasure();
+        onChange();
+    }));
 
     // Left and top can't go past the monitor's own size.
-    const limits = {x: monitor.width, y: monitor.height};
-    for (const [name, field] of Object.entries(FIELDS)) {
-        group.add(sliderRow(field, Math.min(field.max, limits[name] ?? field.max), sheet[name], value => {
-            sheet[name] = value;
-            onChange();
-        }));
-    }
+    group.add(fieldSlider(sheet, 'x', monitor.width, onChange).row);
+    group.add(fieldSlider(sheet, 'y', monitor.height, onChange).row);
+    for (const row of size.rows)
+        group.add(row);
+    group.add(fieldSlider(sheet, 'opacity', FIELDS.opacity.max, onChange).row);
+    group.add(fieldSlider(sheet, 'padding', FIELDS.padding.max, onChange).row);
     return group;
 }
 
-function fileRow(sheet, window, onChange) {
+// Width, Height and Scale are three views of scale_x and scale_y against the
+// text's natural size, so changing one moves the others. Their own updates
+// would echo back as edits, which the syncing flag ignores.
+function sizeRows(sheet, measure, onChange) {
+    const {scale_x: fieldX, scale_y: fieldY} = FIELDS;
+    let natural = measure();
+    let syncing = false;
+
+    const edit = apply => {
+        if (syncing)
+            return;
+        apply();
+        sync();
+        onChange();
+    };
+
+    // With the ratio locked, width and height keep their current proportion,
+    // the way image editors do.
+    const width = slider({label: 'Width', unit: 'px'}, value => edit(() => {
+        const ratio = sheet.scale_y / sheet.scale_x;
+        if (!sheet.lock_ratio) {
+            sheet.scale_x = clamp(value / natural.width * 100, fieldX);
+            return;
+        }
+        sheet.scale_x = clampTogether(value / natural.width * 100, fieldX, ratio, fieldY);
+        sheet.scale_y = clamp(sheet.scale_x * ratio, fieldY);
+    }));
+    const height = slider({label: 'Height', unit: 'px'}, value => edit(() => {
+        const ratio = sheet.scale_x / sheet.scale_y;
+        if (!sheet.lock_ratio) {
+            sheet.scale_y = clamp(value / natural.height * 100, fieldY);
+            return;
+        }
+        sheet.scale_y = clampTogether(value / natural.height * 100, fieldY, ratio, fieldX);
+        sheet.scale_x = clamp(sheet.scale_y * ratio, fieldX);
+    }));
+    // Scale resizes both and keeps any stretch, locked or not.
+    const scale = slider({label: fieldY.label, unit: fieldY.unit}, value => edit(() => {
+        const ratio = sheet.scale_x / sheet.scale_y;
+        sheet.scale_y = clampTogether(value, fieldY, ratio, fieldX);
+        sheet.scale_x = clamp(sheet.scale_y * ratio, fieldX);
+    }));
+
+    const sync = () => {
+        syncing = true;
+        width.scale.adjustment.configure(natural.width * sheet.scale_x / 100,
+            natural.width * fieldX.min / 100, natural.width * fieldX.max / 100, 1, 10, 0);
+        height.scale.adjustment.configure(natural.height * sheet.scale_y / 100,
+            natural.height * fieldY.min / 100, natural.height * fieldY.max / 100, 1, 10, 0);
+        scale.scale.adjustment.configure(sheet.scale_y, fieldY.min, fieldY.max, 1, 10, 0);
+        syncing = false;
+    };
+    sync();
+
+    const lock = new Adw.SwitchRow({title: 'Lock aspect ratio', active: sheet.lock_ratio});
+    lock.connect('notify::active', () => {
+        sheet.lock_ratio = lock.active;
+        onChange();
+    });
+
+    return {
+        rows: [lock, width.row, height.row, scale.row],
+        remeasure: () => {
+            natural = measure();
+            sync();
+        },
+    };
+}
+
+// Clamps a scale so that the other one, at the given ratio, also stays in
+// its range. Otherwise the ratio would quietly change at the limits.
+function clampTogether(value, field, ratio, otherField) {
+    const lower = Math.max(field.min, otherField.min / ratio);
+    const upper = Math.min(field.max, otherField.max / ratio);
+    return clamp(Math.min(upper, Math.max(lower, value)), field);
+}
+
+function fileRow(sheet, window, onPathChanged) {
     // Paths can contain & or <, so show them as plain text, not markup.
     const row = new Adw.ActionRow({title: 'Text file', use_markup: false});
     const setPath = path => {
@@ -45,12 +128,12 @@ function fileRow(sheet, window, onChange) {
     const builtIn = new Gtk.Button({label: 'Use built-in', valign: Gtk.Align.CENTER});
     builtIn.connect('clicked', () => {
         setPath('');
-        onChange();
+        onPathChanged();
     });
     const choose = new Gtk.Button({label: 'Choose…', valign: Gtk.Align.CENTER});
     choose.connect('clicked', () => chooseFile(window, sheet.path, path => {
         setPath(path);
-        onChange();
+        onPathChanged();
     }));
     row.add_suffix(builtIn);
     row.add_suffix(choose);
@@ -58,10 +141,11 @@ function fileRow(sheet, window, onChange) {
 }
 
 function chooseFile(window, currentPath, onChosen) {
-    const text = new Gtk.FileFilter({name: 'Text and ANSI files'});
-    text.add_pattern('*.ans');
-    text.add_pattern('*.txt');
+    const text = new Gtk.FileFilter({name: 'Text, ANSI and Markdown files'});
+    for (const pattern of ['*.ans', '*.txt', '*.md', '*.markdown'])
+        text.add_pattern(pattern);
     text.add_mime_type('text/plain');
+    text.add_mime_type('text/markdown');
     const all = new Gtk.FileFilter({name: 'All files'});
     all.add_pattern('*');
     const filters = new Gio.ListStore({item_type: Gtk.FileFilter});
@@ -82,9 +166,21 @@ function chooseFile(window, currentPath, onChosen) {
     });
 }
 
-function sliderRow(field, max, value, onChange) {
+function fieldSlider(sheet, name, max, onChange) {
+    const field = FIELDS[name];
+    return slider(field, value => {
+        sheet[name] = value;
+        onChange();
+    }, {value: sheet[name], lower: field.min, upper: Math.min(field.max, max)});
+}
+
+// The range is set before the handler is connected, so building the window
+// doesn't fire a change for every slider.
+function slider({label, unit}, onChange, range = {value: 0, lower: 0, upper: 1}) {
     const scale = new Gtk.Scale({
-        adjustment: new Gtk.Adjustment({lower: field.min, upper: max, value, step_increment: 1, page_increment: 10}),
+        // Gtk.Adjustment.new sets value and limits together; as construct
+        // properties, value can be clamped against the default upper of 0.
+        adjustment: Gtk.Adjustment.new(range.value, range.lower, range.upper, 1, 10, 0),
         digits: 0,
         draw_value: true,
         value_pos: Gtk.PositionType.RIGHT,
@@ -92,10 +188,10 @@ function sliderRow(field, max, value, onChange) {
         width_request: 320,
         valign: Gtk.Align.CENTER,
     });
-    scale.set_format_value_func((_scale, v) => `${Math.round(v)} ${field.unit}`);
+    scale.set_format_value_func((_scale, value) => `${Math.round(value)} ${unit}`);
     scale.connect('value-changed', () => onChange(Math.round(scale.get_value())));
 
-    const row = new Adw.ActionRow({title: field.label});
+    const row = new Adw.ActionRow({title: label});
     row.add_suffix(scale);
-    return row;
+    return {row, scale};
 }

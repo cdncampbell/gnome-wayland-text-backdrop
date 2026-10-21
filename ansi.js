@@ -70,7 +70,7 @@ function applySgr(state, params) {
     }
 }
 
-const escapeMarkup = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+export const escapeMarkup = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 function span(state, text) {
     const attrs = [];

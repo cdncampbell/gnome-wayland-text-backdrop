@@ -1,7 +1,5 @@
-/* The panel's background and padding come from the settings (see panel.js). */
+/* Font, size, background and padding come from the settings (see panel.js). */
 .text-backdrop {
-    font-family: "DejaVu Sans Mono", monospace;
-    font-size: 15px;
     color: #e7ecf3;
     border-radius: 16px;
 }
