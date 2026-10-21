@@ -11,6 +11,7 @@ test: sheet
 	gjs -m tests/panel.test.js
 	gjs -m tests/sheets.test.js
 	gjs -m tests/markdown.test.js
+	gjs -m tests/render.test.js
 	glib-compile-schemas --strict --dry-run schemas
 
 pack: test

@@ -6,7 +6,7 @@ import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 import {panelStyle} from './panel.js';
-import {sheetMarkup} from './render.js';
+import {sheetMarkup, unreadableMarkup} from './render.js';
 
 // Editors save in bursts of events; redraw this long after the last one, so one save is one redraw.
 const RELOAD_DELAY_MS = 200;
@@ -59,6 +59,7 @@ export class SheetPanel {
     }
 
     _unwatchSheet() {
+        this._cancelLoad();
         if (this._reloadId) {
             GLib.Source.remove(this._reloadId);
             this._reloadId = 0;
@@ -81,7 +82,33 @@ export class SheetPanel {
         });
     }
 
+    // Reads asynchronously, so a slow drive never blocks the desktop. Each
+    // read can be cancelled: by a newer read, so an older one can't overwrite
+    // it, and by _unwatchSheet(), so a read can't land on a destroyed panel.
     _loadSheet() {
-        this._label.clutter_text.set_markup(sheetMarkup(this._sheet));
+        this._cancelLoad();
+        const file = this._sheet;
+        const cancellable = new Gio.Cancellable();
+        this._loadCancellable = cancellable;
+        file.load_contents_async(cancellable, (_file, result) => {
+            let markup;
+            try {
+                const [, bytes] = file.load_contents_finish(result);
+                markup = sheetMarkup(bytes, file.get_path());
+            } catch (e) {
+                if (e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED))
+                    return;
+                markup = unreadableMarkup(file.get_path());
+            }
+            this._loadCancellable = null;
+            this._label.clutter_text.set_markup(markup);
+        });
+    }
+
+    _cancelLoad() {
+        if (this._loadCancellable) {
+            this._loadCancellable.cancel();
+            this._loadCancellable = null;
+        }
     }
 }

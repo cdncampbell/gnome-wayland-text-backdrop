@@ -87,10 +87,10 @@ Any program can feed a sheet the same way. Write the new text to a temporary fil
 | `sheetPanel.js` | One panel on the desktop: its label, file watch and position. |
 | `ansi.js` | Converts ANSI colour codes to Pango markup for the desktop label. |
 | `markdown.js` | Converts markdown to Pango markup. |
-| `render.js` | Reads a sheet file and picks markdown or ANSI by its extension. Shared by the desktop and the settings window, which measures text the same way. |
+| `render.js` | Turns a sheet's contents into markup, picking markdown or ANSI by the file's extension. Shared by the desktop and the settings window, which measures text the same way. It does no file reading: the desktop reads sheets asynchronously, so a slow drive never blocks GNOME Shell. |
 | `panel.js` | Picks a monitor and builds the panel style. It has no shell imports, so it can be tested. |
 | `welcome.ans` | The built-in text shown until a file is chosen. |
-| `tests/` | ANSI, markdown, panel and sheets-model tests, plus checks that the welcome text, the KB16 example and the markdown sample are valid Pango markup. |
+| `tests/` | ANSI, markdown, render, panel and sheets-model tests, plus checks that the welcome text, the KB16 example and the markdown sample are valid Pango markup. |
 | `examples/` | Example sheets and the scripts that build or feed them. |
 
 ## Commands
