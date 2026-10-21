@@ -5,7 +5,7 @@ import Gtk from 'gi://Gtk';
 
 import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
-const BUILT_IN_LABEL = 'Built-in example (KB16 macropad cheat sheet)';
+const BUILT_IN_LABEL = 'Built-in welcome text';
 
 export default class TextBackdropPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
