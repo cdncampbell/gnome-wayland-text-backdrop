@@ -1,7 +1,8 @@
 {
   "uuid": "text-backdrop@cdncampbell.github.io",
   "name": "Text Backdrop",
-  "description": "Shows a text file, plain or with ANSI colours, as part of the desktop background on GNOME Wayland. A conky-like desktop panel that works without layer-shell.",
+  "description": "Shows text files on your desktop, behind your windows: cheat sheets, notes, or anything in plain text, ANSI colour or Markdown.\n\nA conky-style text panel for GNOME on Wayland, where layer-shell desktop widgets can't run.\n\n* Up to 4 sheets on each monitor, each with its own file, position, size and look\n* Plain text, ANSI colour codes (16, 256 and 24-bit) and Markdown (headings, lists, code, tables)\n* Redraws when a file changes, and picks up files on drives that mount after login\n* Set position, width, height, scale, background opacity and padding with sliders or by typing a number\n* Sheets stay on the same screen when monitors are rearranged\n\nOpen the extension's settings to add sheets and choose their files.",
+  "version-name": "0.6.0",
   "shell-version": ["50"],
   "settings-schema": "org.gnome.shell.extensions.text-backdrop",
   "url": "https://github.com/cdncampbell/gnome-wayland-text-backdrop"
