@@ -5,6 +5,7 @@ import Gtk from 'gi://Gtk';
 import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 import {sheetGroup} from './prefs/sheetGroup.js';
+import {BUILT_IN_SHEET} from './render.js';
 import {FIELDS, MAX_SHEETS_PER_MONITOR, newSheet, readSheets, writeSheets} from './sheets.js';
 
 export default class TextBackdropPreferences extends ExtensionPreferences {
@@ -15,7 +16,7 @@ export default class TextBackdropPreferences extends ExtensionPreferences {
         const save = () => writeSheets(settings, sheets);
 
         for (const monitor of listMonitors(sheets))
-            window.add(monitorPage(monitor, sheets, save, window));
+            window.add(monitorPage(monitor, sheets, save, window, this.dir.get_child(BUILT_IN_SHEET)));
     }
 }
 
@@ -45,7 +46,7 @@ function listMonitors(sheets) {
     return monitors;
 }
 
-function monitorPage(monitor, sheets, save, window) {
+function monitorPage(monitor, sheets, save, window, builtInFile) {
     const page = new Adw.PreferencesPage({
         name: monitor.connector,
         title: monitor.connected ? monitor.connector : `${monitor.connector} (not connected)`,
@@ -66,7 +67,7 @@ function monitorPage(monitor, sheets, save, window) {
             page.remove(group);
         const mine = sheets.filter(sheet => sheet.monitor === monitor.connector);
         groups = mine.map((sheet, index) => sheetGroup({
-            index, sheet, monitor, window,
+            index, sheet, monitor, window, builtInFile,
             onChange: save,
             onRemove: () => {
                 sheets.splice(sheets.indexOf(sheet), 1);

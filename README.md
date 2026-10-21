@@ -8,7 +8,9 @@ Built for GNOME Shell 50.
 
 ## Your own text
 
-Any UTF-8 text file works. Plain text is shown as-is. ANSI colour codes are drawn in colour, the same way `cat` shows them in a terminal:
+Any UTF-8 text file works. Files ending in `.md` or `.markdown` are rendered as markdown: headings, bold, italic, strikethrough, inline code and code blocks, lists and task lists, quotes, links, images (as a placeholder), rules, and pipe tables with their columns re-aligned. `examples/sample.md` shows them all.
+
+Other files are shown as text. Plain text is shown as-is. ANSI colour codes are drawn in colour, the same way `cat` shows them in a terminal:
 
 - reset, bold, dim, strikethrough
 - the 16 basic colours, 256-colour, and 24-bit colour (`ESC[38;2;r;g;bm`)
@@ -25,6 +27,9 @@ The settings window has a tab for each connected monitor, left to right. Each mo
 |---------|--------------|
 | Text file | The file to show. **Use built-in** goes back to the welcome text (`welcome.ans`). The desktop redraws when the file changes. If the file can't be read, a one-line note shows where the text would be, and the file is picked up once it appears (for example, when a drive mounts). |
 | Left, Top | Where the panel sits, measured from the monitor's top-left corner, in pixels. The sliders go up to that monitor's width and height. |
+| Lock aspect ratio | When on, changing Width or Height changes the other to keep the current proportion. |
+| Width, Height | The size of the text, in pixels, from 25% to 400% of its natural size. With the ratio unlocked, the text can be stretched wider or taller. |
+| Scale | Resizes width and height together, 25–400%, keeping any stretch. |
 | Background opacity | The panel behind the text, 0–100%. 0 shows the text only. |
 | Padding | Space between the panel edge and the text, in pixels. |
 
@@ -44,14 +49,16 @@ All sheets are stored in one setting, `sheets`, in `schemas/org.gnome.shell.exte
 | Path | What it is |
 |------|------------|
 | `extension.js`, `stylesheet.css`, `metadata.json` | The extension. |
-| `prefs.js`, `prefs/` | The settings window: a tab per monitor, and a group per sheet. |
+| `prefs.js`, `prefs/` | The settings window: a tab per monitor, a group per sheet, and text measurement for the size sliders. |
 | `schemas/` | The `sheets` setting. |
 | `sheets.js` | The sheets model: field defaults and ranges, validation, and which sheets show on which monitor. Shared by the shell and the settings window. |
 | `sheetPanel.js` | One panel on the desktop: its label, file watch and position. |
 | `ansi.js` | Converts ANSI colour codes to Pango markup for the desktop label. |
+| `markdown.js` | Converts markdown to Pango markup. |
+| `render.js` | Reads a sheet file and picks markdown or ANSI by its extension. Shared by the desktop and the settings window, which measures text the same way. |
 | `panel.js` | Picks a monitor and builds the panel style. It has no shell imports, so it can be tested. |
 | `welcome.ans` | The built-in text shown until a file is chosen. |
-| `tests/` | Parser, panel and sheets-model tests, plus a check that the welcome text and the KB16 example are valid Pango markup. |
+| `tests/` | ANSI, markdown, panel and sheets-model tests, plus checks that the welcome text, the KB16 example and the markdown sample are valid Pango markup. |
 | `examples/kb16/` | The KB16 example sheet and its generator. |
 
 ## Commands

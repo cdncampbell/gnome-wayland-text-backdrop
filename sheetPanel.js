@@ -5,8 +5,8 @@ import St from 'gi://St';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
-import {ansiToPango} from './ansi.js';
 import {panelStyle} from './panel.js';
+import {sheetMarkup} from './render.js';
 
 // Editors save in bursts of events; redraw this long after the last one, so one save is one redraw.
 const RELOAD_DELAY_MS = 200;
@@ -35,7 +35,10 @@ export class SheetPanel {
             this._path = sheet.path;
             this._watchSheet();
         }
-        this._label.set_style(panelStyle(sheet.opacity, sheet.padding));
+        // The font size carries the vertical scale, so locked scaling stays
+        // sharp. Any extra width is a sideways stretch of the drawn label.
+        this._label.set_style(panelStyle(sheet.opacity, sheet.padding, sheet.scale_y));
+        this._label.set_scale(sheet.scale_x / sheet.scale_y, 1);
         this._label.set_position(monitor.x + sheet.x, monitor.y + sheet.y);
     }
 
@@ -79,13 +82,6 @@ export class SheetPanel {
     }
 
     _loadSheet() {
-        let text;
-        try {
-            const [, bytes] = this._sheet.load_contents(null);
-            text = new TextDecoder().decode(bytes);
-        } catch {
-            text = `Text Backdrop: can't read ${this._sheet.get_path()}`;
-        }
-        this._label.clutter_text.set_markup(ansiToPango(text));
+        this._label.clutter_text.set_markup(sheetMarkup(this._sheet));
     }
 }

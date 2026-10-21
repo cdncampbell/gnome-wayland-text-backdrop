@@ -14,10 +14,14 @@ const cases = [
     ['-1 (no connector, or not plugged in) falls back to left-most',
         () => pickMonitor(monitors, -1).name, 'left'],
     ['an out-of-range index falls back to left-most', () => pickMonitor(monitors, 7).name, 'left'],
-    ['86% opacity and padding become inline CSS', () => panelStyle(86, 22),
-        'background-color: rgba(15, 19, 26, 0.86); padding: 22px;'],
-    ['0% opacity leaves the text with no panel', () => panelStyle(0, 0),
-        'background-color: rgba(15, 19, 26, 0); padding: 0px;'],
+    ['opacity, padding and scale become inline CSS', () => panelStyle(86, 22, 100),
+        'font-family: "DejaVu Sans Mono", monospace; font-size: 15px; '
+        + 'background-color: rgba(15, 19, 26, 0.86); padding: 22px;'],
+    ['0% opacity leaves the text with no panel', () => panelStyle(0, 0, 100),
+        'font-family: "DejaVu Sans Mono", monospace; font-size: 15px; '
+        + 'background-color: rgba(15, 19, 26, 0); padding: 0px;'],
+    ['the scale sets the font size', () => panelStyle(86, 22, 150).match(/font-size: [^;]+/)[0],
+        'font-size: 22.5px'],
 ];
 
 let failed = 0;
