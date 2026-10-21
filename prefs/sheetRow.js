@@ -224,24 +224,33 @@ function fieldSlider(sheet, name, max, onChange) {
     }, {value: sheet[name], lower: field.min, upper: Math.min(field.max, max)});
 }
 
-// The range is set before the handler is connected, so building the window
-// doesn't fire a change for every slider.
+// A slider with a number box beside it. Both use one adjustment, so dragging
+// and typing are the same edit. The range is set before the handler is
+// connected, so building the window doesn't fire a change for every slider.
 function slider({label, unit}, onChange, range = {value: 0, lower: 0, upper: 1}) {
+    // Gtk.Adjustment.new sets value and limits together; as construct
+    // properties, value can be clamped against the default upper of 0.
+    const adjustment = Gtk.Adjustment.new(range.value, range.lower, range.upper, 1, 10, 0);
     const scale = new Gtk.Scale({
-        // Gtk.Adjustment.new sets value and limits together; as construct
-        // properties, value can be clamped against the default upper of 0.
-        adjustment: Gtk.Adjustment.new(range.value, range.lower, range.upper, 1, 10, 0),
-        digits: 0,
-        draw_value: true,
-        value_pos: Gtk.PositionType.RIGHT,
+        adjustment,
+        draw_value: false,
         hexpand: true,
-        width_request: 320,
+        width_request: 260,
         valign: Gtk.Align.CENTER,
     });
-    scale.set_format_value_func((_scale, value) => `${Math.round(value)} ${unit}`);
+    const entry = new Gtk.SpinButton({
+        adjustment,
+        digits: 0,
+        numeric: true,
+        width_chars: 5,
+        valign: Gtk.Align.CENTER,
+        tooltip_text: `${label} in ${unit}`,
+    });
     scale.connect('value-changed', () => onChange(Math.round(scale.get_value())));
 
     const row = new Adw.ActionRow({title: label});
     row.add_suffix(scale);
+    row.add_suffix(entry);
+    row.add_suffix(new Gtk.Label({label: unit, width_chars: 2, xalign: 0, css_classes: ['dim-label']}));
     return {row, scale};
 }

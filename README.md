@@ -4,7 +4,7 @@ A GNOME Shell extension that shows a text file as part of the desktop background
 
 Conky's Wayland mode, eww, nwg-wrapper and other desktop-widget tools rely on the wlr-layer-shell protocol, which GNOME's compositor (Mutter) doesn't implement. An extension runs inside the shell itself, so it can draw on the background layer directly.
 
-Built for GNOME Shell 50.
+Version 0.6.0, built for GNOME Shell 50. The version is `version-name` in `metadata.json`; it moves to 1.0.0 with the first extensions.gnome.org release.
 
 ## Your own text
 
@@ -19,7 +19,7 @@ Other escape sequences, like cursor movement, are dropped. The panel uses DejaVu
 
 ## Settings
 
-Open the settings from the Extensions app, or with `gnome-extensions prefs text-backdrop@cdncampbell.github.io`. Every change applies to the desktop straight away.
+Open the settings from the Extensions app, or with `gnome-extensions prefs text-backdrop@cdncampbell.github.io`. Every change applies to the desktop straight away. Each slider has a number box beside it, so a value can be dragged or typed.
 
 The settings window has a tab for each connected monitor, left to right. Each monitor can show up to 4 sheets: **Add sheet** adds one, and the bin icon removes it. Each sheet is a collapsible row, and opening one closes the others. Click a sheet's name to rename it: Enter saves, Esc cancels, and clearing the name goes back to the file's name. Each sheet has:
 
