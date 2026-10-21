@@ -4,7 +4,7 @@
     <key name="sheets" type="aa{sv}">
       <default>[]</default>
       <summary>Sheets</summary>
-      <description>The text panels to draw, up to 4 per monitor. Each entry has monitor (connector name such as DP-1), path (empty for the built-in welcome text), name (empty to use the file name), x and y (pixels from the monitor's top-left corner), opacity (percent), padding (pixels), scale_x and scale_y (percent of the text's natural size) and lock_ratio (boolean). Empty shows the built-in text on the left-most monitor. The limits are applied in sheets.js.</description>
+      <description>The text panels to draw, up to 4 per monitor. Each entry has monitor (connector name such as DP-1), path (empty for the built-in welcome text), name (empty to use the file name), font_family, font_size (points), x and y (pixels from the monitor's top-left corner), opacity (percent), padding (pixels), scale_x and scale_y (percent of the text's natural size) and lock_ratio (boolean). Empty shows the built-in text on the left-most monitor. The limits are applied in sheets.js.</description>
     </key>
   </schema>
 </schemalist>

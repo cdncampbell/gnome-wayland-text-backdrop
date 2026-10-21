@@ -4,7 +4,7 @@ A GNOME Shell extension that shows a text file as part of the desktop background
 
 Conky's Wayland mode, eww, nwg-wrapper and other desktop-widget tools rely on the wlr-layer-shell protocol, which GNOME's compositor (Mutter) doesn't implement. An extension runs inside the shell itself, so it can draw on the background layer directly.
 
-Version 0.6.0, built for GNOME Shell 50. The version is `version-name` in `metadata.json`; it moves to 1.0.0 with the first extensions.gnome.org release.
+Version 0.7.0, built for GNOME Shell 50. The version is `version-name` in `metadata.json`; it moves to 1.0.0 with the first extensions.gnome.org release.
 
 ## Your own text
 
@@ -26,6 +26,8 @@ The settings window has a tab for each connected monitor, left to right. Each mo
 | Setting | What it does |
 |---------|--------------|
 | Text file | The file to show. **Use built-in** goes back to the welcome text (`welcome.ans`). The desktop redraws when the file changes. If the file can't be read, a one-line note shows where the text would be, and the file is picked up once it appears (for example, when a drive mounts). |
+| Font | The sheet's font, from GNOME's font chooser. It lists monospaced fonts, since box drawing, ANSI layouts and markdown tables only line up in those; turn on **Show all fonts** for proportional fonts. Pick a font that has every character your sheet uses: a missing character is drawn from another font, and if that one is wider, the rest of its line shifts. DejaVu Sans Mono, the default, covers box drawing and arrows. |
+| Font size | 6–72 pt, 11 pt by default. Changing it resets Scale to 100%, so the size you pick is the size drawn. |
 | Left, Top | Where the panel sits, measured from the monitor's top-left corner, in pixels. The sliders go up to that monitor's width and height. |
 | Lock aspect ratio | When on, changing Width or Height changes the other to keep the current proportion. |
 | Width, Height | The size of the text, in pixels, from 25% to 400% of its natural size. With the ratio unlocked, the text can be stretched wider or taller. |

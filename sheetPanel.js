@@ -37,7 +37,7 @@ export class SheetPanel {
         }
         // The font size carries the vertical scale, so locked scaling stays
         // sharp. Any extra width is a sideways stretch of the drawn label.
-        this._label.set_style(panelStyle(sheet.opacity, sheet.padding, sheet.scale_y));
+        this._label.set_style(panelStyle(sheet));
         this._label.set_scale(sheet.scale_x / sheet.scale_y, 1);
         this._label.set_position(monitor.x + sheet.x, monitor.y + sheet.y);
     }
