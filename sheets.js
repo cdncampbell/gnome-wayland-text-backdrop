@@ -1,5 +1,5 @@
 // The `sheets` setting: a list of
-// {monitor, path, lock_ratio, x, y, opacity, padding, scale_x, scale_y}.
+// {monitor, path, name, lock_ratio, x, y, opacity, padding, scale_x, scale_y}.
 // Used by both the shell and the settings window, so it imports only GLib.
 // GSettings can't range-check fields inside a dictionary, so the limits live
 // here and every read and write goes through normalizeSheets().
@@ -7,6 +7,7 @@
 import GLib from 'gi://GLib';
 
 export const MAX_SHEETS_PER_MONITOR = 4;
+export const MAX_NAME_LENGTH = 60;
 
 // x and y are capped again by the monitor's size in the settings window.
 // scale_x and scale_y size the text against its natural size, so a sheet
@@ -20,9 +21,10 @@ export const FIELDS = {
     scale_y: {label: 'Scale', unit: '%', default: 100, min: 25, max: 400},
 };
 
-// An empty path means the built-in welcome text.
+// An empty path means the built-in welcome text, and an empty name means
+// the sheet is called after its file (see displayName).
 export function newSheet(monitor) {
-    const sheet = {monitor, path: '', lock_ratio: true};
+    const sheet = {monitor, path: '', name: '', lock_ratio: true};
     for (const [name, field] of Object.entries(FIELDS))
         sheet[name] = field.default;
     return sheet;
@@ -48,6 +50,8 @@ export function normalizeSheets(sheets) {
         const clean = newSheet(sheet.monitor);
         if (typeof sheet.path === 'string')
             clean.path = sheet.path;
+        if (typeof sheet.name === 'string')
+            clean.name = sheet.name.trim().slice(0, MAX_NAME_LENGTH);
         if (typeof sheet.lock_ratio === 'boolean')
             clean.lock_ratio = sheet.lock_ratio;
         for (const [name, field] of Object.entries(FIELDS))
@@ -62,12 +66,23 @@ export function packSheets(sheets) {
         const packed = {
             monitor: new GLib.Variant('s', sheet.monitor),
             path: new GLib.Variant('s', sheet.path),
+            name: new GLib.Variant('s', sheet.name),
             lock_ratio: new GLib.Variant('b', sheet.lock_ratio),
         };
         for (const name of Object.keys(FIELDS))
             packed[name] = new GLib.Variant('i', sheet[name]);
         return packed;
     }));
+}
+
+export function displayName(sheet) {
+    if (sheet.name)
+        return sheet.name;
+    if (!sheet.path)
+        return 'Welcome text';
+    const file = sheet.path.split('/').pop();
+    const dot = file.lastIndexOf('.');
+    return dot > 0 ? file.slice(0, dot) : file;
 }
 
 export function readSheets(settings) {
