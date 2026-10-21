@@ -48,10 +48,11 @@ None of these are packed into the extension. To use one, choose its file as a sh
 | `examples/git-quick-reference.md` | A Git cheat sheet in markdown: tables, code blocks, a task list and quotes. |
 | `examples/sample.md` | Every markdown construct the renderer supports, as a keyboard-shortcut sheet. |
 | `examples/ansi-banner/banner.ans` | An 80-column banner in the style of 1990s BBS ANSI art: shaded block letters, the 16-colour palette and a release-info box. |
+| `examples/gh-workflow/gh-team-workflow.ans` | A two-column GitHub CLI cheat sheet for a draft-PR, review-first team workflow. |
 | `examples/system-status/status.sh` | A live sheet: a script that rewrites a status file every 30 seconds. |
 | `examples/kb16/kb16-cheat-sheet.ans` | The sheet this started as: the layer map of my KeebMonkey Megalodon (DOIO KB16-01) macropad, in box drawing and 24-bit colour. |
 
-The banner and the KB16 sheet are built by `build-banner.py` and `build-sheet.py` next to them. Edit those and run them again rather than editing the `.ans` files. The KB16 layer data duplicates the printable cheat sheet in [keebmonkey-megaladon-kb16-01](https://github.com/cdncampbell/keebmonkey-megaladon-kb16-01), so a key change goes in both places.
+The banner and the KB16 sheet are built by `build-banner.py` and `build-sheet.py` next to them. The gh sheet is built by `build-gh-sheet.py` from `team-workflow.json`; to make your team's own version, copy the JSON, change the wording, branch names and rules, and run `build-gh-sheet.py yours.json yours.ans`. The layout stays the same. Edit those and run them again rather than editing the `.ans` files. The KB16 layer data duplicates the printable cheat sheet in [keebmonkey-megaladon-kb16-01](https://github.com/cdncampbell/keebmonkey-megaladon-kb16-01), so a key change goes in both places.
 
 ### A live sheet
 

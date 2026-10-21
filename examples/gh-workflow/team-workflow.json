@@ -1,0 +1,113 @@
+{
+  "title": "gh · team workflow",
+  "subtitle": "GitHub CLI for a draft-PR, review-first team. <base> is your integration branch.",
+  "columns": [
+    [
+      {
+        "title": "Set up",
+        "colour": "blue",
+        "rows": [
+          ["gh auth login", "Sign in once; pick SSH for git"],
+          ["gh auth status", "Which account and scopes are active"],
+          ["gh repo clone <owner>/<repo>", "Clone with the remote set up"],
+          ["gh browse", "Open this repo in the browser"]
+        ]
+      },
+      {
+        "title": "Start work",
+        "colour": "green",
+        "rows": [
+          ["git switch <base>", "Start from the integration branch"],
+          ["git pull --ff-only", "Update it, without a merge commit"],
+          ["git switch -c feature/<ticket>-<slug>", "One branch per ticket, named for it"]
+        ],
+        "note": "Prefixes: feature/, fix/, chore/, docs/."
+      },
+      {
+        "title": "Commit and push",
+        "colour": "orange",
+        "rows": [
+          ["<lint> && <typecheck> && <test>", "Run the gates before every commit"],
+          ["git commit", "Hooks run; fix what they flag"],
+          ["git push -u origin HEAD", "Push the branch and track it"]
+        ]
+      },
+      {
+        "title": "Find your work",
+        "colour": "purple",
+        "rows": [
+          ["gh pr status", "Your PRs, and reviews waiting on you"],
+          ["gh pr list --author @me --draft", "Your open drafts"],
+          ["gh pr list -S review-requested:@me", "PRs asking for your review"],
+          ["gh pr view <n> --web", "Open a PR in the browser"]
+        ]
+      },
+      {
+        "title": "Rules",
+        "colour": "red",
+        "rules": [
+          "- Push or commit straight to <base> or main",
+          "- Open a PR as ready, or mark your own PR ready",
+          "- Merge someone else's PR for them",
+          "- Skip hooks with --no-verify, or commit a secret",
+          "+ Tests pass locally before the PR exists",
+          "+ Report failures with the real error message"
+        ]
+      }
+    ],
+    [
+      {
+        "title": "Open a draft PR",
+        "colour": "blue",
+        "rows": [
+          ["gh pr create --draft --base <base> --fill", "Draft PR, title and body from your commits"],
+          ["gh pr create --draft --base <base> -t <title> -F body.md", "Or write the title and body yourself"]
+        ],
+        "note": "Add -r <reviewer> to ask for a review. The body says why, what changed, and how it was tested."
+      },
+      {
+        "title": "Check CI",
+        "colour": "green",
+        "rows": [
+          ["gh pr checks --watch --fail-fast", "Follow checks; stop at the first failure"],
+          ["gh run list --branch <branch>", "Recent workflow runs"],
+          ["gh run view <id> --log-failed", "Logs of the failed steps only"],
+          ["gh run rerun <id> --failed", "Rerun just the failed jobs"]
+        ]
+      },
+      {
+        "title": "Review",
+        "colour": "orange",
+        "rows": [
+          ["gh pr diff <n> --name-only", "Which files changed"],
+          ["gh pr checkout <n>", "Try the PR locally"],
+          ["gh pr review <n> -c -b <text>", "Comment without approving"],
+          ["gh pr review <n> --approve", "Approve"],
+          ["gh pr review <n> -r -b <text>", "Request changes, with the reason"]
+        ]
+      },
+      {
+        "title": "Ready and merge",
+        "colour": "purple",
+        "note_above": "Done by a person, after review.",
+        "rows": [
+          ["gh pr ready <n>", "Take it out of draft"],
+          ["gh pr ready <n> --undo", "Put it back in draft"],
+          ["gh pr merge <n> --merge --delete-branch", "Merge, then delete the branch"],
+          ["git switch <base> && git pull --ff-only", "Bring the merge down"],
+          ["git fetch --prune", "Forget branches deleted on GitHub"]
+        ]
+      },
+      {
+        "title": "When gh misbehaves",
+        "colour": "grey",
+        "rows": [
+          ["gh pr view <n> --json state,isDraft,mergeable", "Status as JSON, for scripts"],
+          ["gh api repos/{owner}/{repo}/pulls/<n>", "The raw PR as JSON"],
+          ["gh api -X PATCH repos/{owner}/{repo}/pulls/<n> -F body=@body.md", "Edit a PR's body when gh pr edit fails"]
+        ],
+        "note": "In gh api paths, gh fills in {owner} and {repo} from the current repo."
+      }
+    ]
+  ]
+}
