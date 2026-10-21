@@ -39,12 +39,42 @@ Monitors are remembered by connector (DP-1, HDMI-1...), so a sheet stays on the 
 
 All sheets are stored in one setting, `sheets`, in `schemas/org.gnome.shell.extensions.text-backdrop.gschema.xml`. Each field's label, default and range are in `sheets.js`.
 
-## Example: KB16 macropad cheat sheet
+## Examples
 
-`examples/kb16/` is the sheet this started as: the layer map of my KeebMonkey Megalodon (DOIO KB16-01) macropad, drawn with box drawing and 24-bit colour. It isn't packed into the extension; to use it, choose `examples/kb16/kb16-cheat-sheet.ans` as the Text file. See [keebmonkey-megaladon-kb16-01](https://github.com/cdncampbell/keebmonkey-megaladon-kb16-01) for the keyboard itself.
+None of these are packed into the extension. To use one, choose its file as a sheet's Text file.
 
-- `examples/kb16/build-sheet.py` holds the layer data and generates `kb16-cheat-sheet.ans`. Don't edit the `.ans` by hand.
-- The layer data duplicates the printable cheat sheet in the keyboard repo, so a key change goes in both places.
+| File | What it shows |
+|------|---------------|
+| `examples/git-quick-reference.md` | A Git cheat sheet in markdown: tables, code blocks, a task list and quotes. |
+| `examples/sample.md` | Every markdown construct the renderer supports, as a keyboard-shortcut sheet. |
+| `examples/ansi-banner/banner.ans` | An 80-column banner in the style of 1990s BBS ANSI art: shaded block letters, the 16-colour palette and a release-info box. |
+| `examples/system-status/status.sh` | A live sheet: a script that rewrites a status file every 30 seconds. |
+| `examples/kb16/kb16-cheat-sheet.ans` | The sheet this started as: the layer map of my KeebMonkey Megalodon (DOIO KB16-01) macropad, in box drawing and 24-bit colour. |
+
+The banner and the KB16 sheet are built by `build-banner.py` and `build-sheet.py` next to them. Edit those and run them again rather than editing the `.ans` files. The KB16 layer data duplicates the printable cheat sheet in [keebmonkey-megaladon-kb16-01](https://github.com/cdncampbell/keebmonkey-megaladon-kb16-01), so a key change goes in both places.
+
+### A live sheet
+
+`status.sh` shows the time, uptime, load, memory, the fullest disks, the battery and network addresses. Run it once to see it in a terminal, or keep a file up to date for a sheet:
+
+```sh
+examples/system-status/status.sh --watch ~/.cache/system-status.ans
+```
+
+To start it at login, save this as `~/.config/systemd/user/system-status.service`, with the script's real path, then run `systemctl --user enable --now system-status`:
+
+```ini
+[Unit]
+Description=Status sheet for Text Backdrop
+
+[Service]
+ExecStart=/path/to/status.sh --watch %h/.cache/system-status.ans
+
+[Install]
+WantedBy=default.target
+```
+
+Any program can feed a sheet the same way. Write the new text to a temporary file in the same folder, then rename it over the sheet. The rename is atomic, so the desktop never redraws from a half-written file.
 
 ## What's here
 
@@ -61,7 +91,7 @@ All sheets are stored in one setting, `sheets`, in `schemas/org.gnome.shell.exte
 | `panel.js` | Picks a monitor and builds the panel style. It has no shell imports, so it can be tested. |
 | `welcome.ans` | The built-in text shown until a file is chosen. |
 | `tests/` | ANSI, markdown, panel and sheets-model tests, plus checks that the welcome text, the KB16 example and the markdown sample are valid Pango markup. |
-| `examples/kb16/` | The KB16 example sheet and its generator. |
+| `examples/` | Example sheets and the scripts that build or feed them. |
 
 ## Commands
 

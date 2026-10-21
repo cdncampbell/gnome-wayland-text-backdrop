@@ -33,7 +33,7 @@ for (const [name, input, expected] of cases) {
 
 // The shipped and example sheets must convert to markup Pango accepts;
 // set_markup on a label fails quietly and shows nothing, so catch it here.
-const sheets = ['welcome.ans', 'examples/kb16/kb16-cheat-sheet.ans'];
+const sheets = ['welcome.ans', 'examples/kb16/kb16-cheat-sheet.ans', 'examples/ansi-banner/banner.ans'];
 const repo = Gio.File.new_for_uri(import.meta.url).get_parent().get_parent();
 for (const path of sheets) {
     const [, bytes] = repo.resolve_relative_path(path).load_contents(null);
