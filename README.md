@@ -4,7 +4,7 @@ A GNOME Shell extension that shows a text file as part of the desktop background
 
 Conky's Wayland mode, eww, nwg-wrapper and other desktop-widget tools rely on the wlr-layer-shell protocol, which GNOME's compositor (Mutter) doesn't implement. An extension runs inside the shell itself, so it can draw on the background layer directly.
 
-Version 0.7.0, built for GNOME Shell 50. The version is `version-name` in `metadata.json`; it moves to 1.0.0 with the first extensions.gnome.org release.
+Version 1.0.0, built for GNOME Shell 50. The version is `version-name` in `metadata.json`: the minor number goes up with each feature and the patch number with each fix.
 
 ## Your own text
 
