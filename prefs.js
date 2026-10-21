@@ -4,7 +4,7 @@ import Gtk from 'gi://Gtk';
 
 import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
-import {sheetGroup} from './prefs/sheetGroup.js';
+import {sheetRow} from './prefs/sheetRow.js';
 import {BUILT_IN_SHEET} from './render.js';
 import {FIELDS, MAX_SHEETS_PER_MONITOR, newSheet, readSheets, writeSheets} from './sheets.js';
 
@@ -60,36 +60,57 @@ function monitorPage(monitor, sheets, save, window, builtInFile) {
     const header = new Adw.PreferencesGroup({title: monitor.connector});
     header.set_header_suffix(add);
     page.add(header);
+    const list = new Adw.PreferencesGroup({title: 'Sheets'});
+    page.add(list);
 
-    let groups = [];
-    const render = () => {
-        for (const group of groups)
-            page.remove(group);
-        const mine = sheets.filter(sheet => sheet.monitor === monitor.connector);
-        groups = mine.map((sheet, index) => sheetGroup({
-            index, sheet, monitor, window, builtInFile,
+    // Rows are added and removed one at a time, so the others (and whichever
+    // one is open) stay as they are.
+    const rows = [];
+    const refresh = () => {
+        list.visible = rows.length > 0;
+        add.sensitive = rows.length < MAX_SHEETS_PER_MONITOR;
+        add.tooltip_text = add.sensitive ? '' : `A monitor can show up to ${MAX_SHEETS_PER_MONITOR} sheets`;
+        header.description = rows.length === 0 ? `${about}\nNo sheets on this monitor.` : about;
+    };
+
+    const addRow = sheet => {
+        const row = sheetRow({
+            sheet, monitor, window, builtInFile,
             onChange: save,
             onRemove: () => {
                 sheets.splice(sheets.indexOf(sheet), 1);
                 save();
-                render();
+                rows.splice(rows.indexOf(row), 1);
+                list.remove(row);
+                refresh();
             },
-        }));
-        for (const group of groups)
-            page.add(group);
-
-        add.sensitive = mine.length < MAX_SHEETS_PER_MONITOR;
-        add.tooltip_text = add.sensitive ? '' : `A monitor can show up to ${MAX_SHEETS_PER_MONITOR} sheets`;
-        header.description = mine.length === 0 ? `${about}\nNo sheets on this monitor.` : about;
+        });
+        // An accordion: opening one sheet closes the others on this monitor.
+        row.connect('notify::expanded', () => {
+            if (!row.expanded)
+                return;
+            for (const other of rows) {
+                if (other !== row)
+                    other.expanded = false;
+            }
+        });
+        rows.push(row);
+        list.add(row);
+        return row;
     };
 
+    for (const sheet of sheets.filter(s => s.monitor === monitor.connector))
+        addRow(sheet);
+    refresh();
+
     add.connect('clicked', () => {
-        if (sheets.filter(sheet => sheet.monitor === monitor.connector).length >= MAX_SHEETS_PER_MONITOR)
+        if (rows.length >= MAX_SHEETS_PER_MONITOR)
             return;
-        sheets.push(newSheet(monitor.connector));
+        const sheet = newSheet(monitor.connector);
+        sheets.push(sheet);
         save();
-        render();
+        addRow(sheet).expanded = true;
+        refresh();
     });
-    render();
     return page;
 }

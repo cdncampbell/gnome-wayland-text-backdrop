@@ -21,7 +21,7 @@ Other escape sequences, like cursor movement, are dropped. The panel uses DejaVu
 
 Open the settings from the Extensions app, or with `gnome-extensions prefs text-backdrop@cdncampbell.github.io`. Every change applies to the desktop straight away.
 
-The settings window has a tab for each connected monitor, left to right. Each monitor can show up to 4 sheets: **Add sheet** adds one, and the bin icon removes it. Each sheet has:
+The settings window has a tab for each connected monitor, left to right. Each monitor can show up to 4 sheets: **Add sheet** adds one, and the bin icon removes it. Each sheet is a collapsible row, and opening one closes the others. Click a sheet's name to rename it: Enter saves, Esc cancels, and clearing the name goes back to the file's name. Each sheet has:
 
 | Setting | What it does |
 |---------|--------------|
@@ -49,7 +49,7 @@ All sheets are stored in one setting, `sheets`, in `schemas/org.gnome.shell.exte
 | Path | What it is |
 |------|------------|
 | `extension.js`, `stylesheet.css`, `metadata.json` | The extension. |
-| `prefs.js`, `prefs/` | The settings window: a tab per monitor, a group per sheet, and text measurement for the size sliders. |
+| `prefs.js`, `prefs/` | The settings window: a tab per monitor, a collapsible, renamable row per sheet, and text measurement for the size sliders. |
 | `schemas/` | The `sheets` setting. |
 | `sheets.js` | The sheets model: field defaults and ranges, validation, and which sheets show on which monitor. Shared by the shell and the settings window. |
 | `sheetPanel.js` | One panel on the desktop: its label, file watch and position. |

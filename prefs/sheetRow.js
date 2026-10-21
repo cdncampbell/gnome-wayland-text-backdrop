@@ -1,16 +1,20 @@
 import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
 import Gtk from 'gi://Gtk';
+import Pango from 'gi://Pango';
 
-import {FIELDS, clamp} from '../sheets.js';
+import {FIELDS, MAX_NAME_LENGTH, clamp, displayName} from '../sheets.js';
 import {naturalSize} from './measure.js';
 
 const BUILT_IN_LABEL = 'Built-in welcome text';
 
-// The settings for one sheet: its file, position, size and look. Edits change
-// the sheet object in place and then call onChange() to save the whole list.
-export function sheetGroup({index, sheet, monitor, window, builtInFile, onChange, onRemove}) {
-    const group = new Adw.PreferencesGroup({title: `Sheet ${index + 1}`});
+// One sheet as an accordion row: its name and file in the header, and its
+// file, position, size and look inside. Edits change the sheet object in
+// place and then call onChange() to save the whole list.
+export function sheetRow({sheet, monitor, window, builtInFile, onChange, onRemove}) {
+    const row = new Adw.ExpanderRow();
+    const header = headerLabels(sheet, onChange);
+    row.add_prefix(header.box);
 
     const remove = new Gtk.Button({
         icon_name: 'user-trash-symbolic',
@@ -19,24 +23,70 @@ export function sheetGroup({index, sheet, monitor, window, builtInFile, onChange
         css_classes: ['flat'],
     });
     remove.connect('clicked', onRemove);
-    group.set_header_suffix(remove);
+    row.add_suffix(remove);
 
     const measure = () => naturalSize(window, sheet.path ? Gio.File.new_for_path(sheet.path) : builtInFile);
     const size = sizeRows(sheet, measure, onChange);
 
-    group.add(fileRow(sheet, window, () => {
+    row.add_row(fileRow(sheet, window, () => {
         size.remeasure();
+        header.refresh();
         onChange();
     }));
 
     // Left and top can't go past the monitor's own size.
-    group.add(fieldSlider(sheet, 'x', monitor.width, onChange).row);
-    group.add(fieldSlider(sheet, 'y', monitor.height, onChange).row);
-    for (const row of size.rows)
-        group.add(row);
-    group.add(fieldSlider(sheet, 'opacity', FIELDS.opacity.max, onChange).row);
-    group.add(fieldSlider(sheet, 'padding', FIELDS.padding.max, onChange).row);
-    return group;
+    row.add_row(fieldSlider(sheet, 'x', monitor.width, onChange).row);
+    row.add_row(fieldSlider(sheet, 'y', monitor.height, onChange).row);
+    for (const sizeRow of size.rows)
+        row.add_row(sizeRow);
+    row.add_row(fieldSlider(sheet, 'opacity', FIELDS.opacity.max, onChange).row);
+    row.add_row(fieldSlider(sheet, 'padding', FIELDS.padding.max, onChange).row);
+    return row;
+}
+
+// The header: the sheet's name, which can be renamed by clicking it, over its
+// file. A cleared name goes back to the file's name.
+function headerLabels(sheet, onChange) {
+    const name = new Gtk.EditableLabel({text: displayName(sheet), xalign: 0, css_classes: ['heading']});
+    name.get_delegate().max_length = MAX_NAME_LENGTH;
+    // Paths shorten in the middle, so the file name itself stays visible.
+    const file = new Gtk.Label({
+        xalign: 0,
+        ellipsize: Pango.EllipsizeMode.MIDDLE,
+        max_width_chars: 48,
+        css_classes: ['dim-label', 'caption'],
+    });
+    const box = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL, valign: Gtk.Align.CENTER, spacing: 2});
+    box.append(name);
+    box.append(file);
+
+    // The row opens and closes on any click in its header. Claiming the click
+    // here starts the rename instead, and keeps the row as it is.
+    const click = new Gtk.GestureClick();
+    click.connect('pressed', () => {
+        click.set_state(Gtk.EventSequenceState.CLAIMED);
+        name.start_editing();
+    });
+    name.add_controller(click);
+
+    name.connect('notify::editing', () => {
+        if (name.editing)
+            return;
+        const typed = name.text.trim();
+        const renamed = typed === displayName({...sheet, name: ''}) ? '' : typed;
+        name.text = displayName({...sheet, name: renamed});
+        if (renamed === sheet.name)
+            return;
+        sheet.name = renamed;
+        onChange();
+    });
+
+    const refresh = () => {
+        name.text = displayName(sheet);
+        file.label = sheet.path || BUILT_IN_LABEL;
+    };
+    refresh();
+    return {box, refresh};
 }
 
 // Width, Height and Scale are three views of scale_x and scale_y against the
