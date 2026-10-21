@@ -9,11 +9,13 @@ sheet:
 test: sheet
 	gjs -m tests/ansi.test.js
 	gjs -m tests/panel.test.js
+	gjs -m tests/sheets.test.js
 	glib-compile-schemas --strict --dry-run schemas
 
 pack: test
 	gnome-extensions pack --force --schema=$(SCHEMA) \
-		--extra-source=ansi.js --extra-source=panel.js --extra-source=welcome.ans .
+		--extra-source=ansi.js --extra-source=panel.js --extra-source=sheets.js \
+		--extra-source=sheetPanel.js --extra-source=prefs --extra-source=welcome.ans .
 
 install: pack
 	gnome-extensions install --force $(UUID).shell-extension.zip
