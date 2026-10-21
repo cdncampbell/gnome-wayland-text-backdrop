@@ -96,8 +96,9 @@ const tricky = [
     '| **a | b** |\n|---|---|\n| `x | y` |', '> **a\n> b**', '![**x**](y) [`a`](<b>)',
 ];
 const repo = Gio.File.new_for_uri(import.meta.url).get_parent().get_parent();
-const [, bytes] = repo.resolve_relative_path('examples/sample.md').load_contents(null);
-const inputs = [...tricky, new TextDecoder().decode(bytes)];
+const examples = ['examples/sample.md', 'examples/git-quick-reference.md']
+    .map(path => new TextDecoder().decode(repo.resolve_relative_path(path).load_contents(null)[1]));
+const inputs = [...tricky, ...examples];
 for (const input of inputs) {
     try {
         Pango.parse_markup(markdownToPango(input), -1, '\0');
