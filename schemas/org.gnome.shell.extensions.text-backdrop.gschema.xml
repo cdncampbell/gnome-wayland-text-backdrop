@@ -1,40 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- The settings pane takes each key's title, subtitle and range from here. -->
 <schemalist>
   <schema id="org.gnome.shell.extensions.text-backdrop" path="/org/gnome/shell/extensions/text-backdrop/">
-    <key name="monitor-connector" type="s">
-      <default>''</default>
-      <summary>Monitor</summary>
-      <description>Connector of the monitor to draw on, such as DP-2. Empty means the left-most monitor, which is also the fallback when that connector isn't plugged in.</description>
-    </key>
-    <key name="sheet-path" type="s">
-      <default>''</default>
-      <summary>Text file</summary>
-      <description>Path of the file to show. Empty means the built-in welcome text.</description>
-    </key>
-    <key name="background-opacity" type="i">
-      <range min="0" max="100"/>
-      <default>86</default>
-      <summary>Background opacity</summary>
-      <description>Opacity of the panel behind the text, in percent. 0 shows the text only.</description>
-    </key>
-    <key name="padding" type="i">
-      <range min="0" max="200"/>
-      <default>22</default>
-      <summary>Padding</summary>
-      <description>Space between the panel edge and the text, in pixels.</description>
-    </key>
-    <key name="margin-x" type="i">
-      <range min="0" max="4000"/>
-      <default>48</default>
-      <summary>Left margin</summary>
-      <description>Distance from the monitor's left edge, in pixels.</description>
-    </key>
-    <key name="margin-y" type="i">
-      <range min="0" max="4000"/>
-      <default>48</default>
-      <summary>Top margin</summary>
-      <description>Distance from the monitor's top edge, in pixels.</description>
+    <key name="sheets" type="aa{sv}">
+      <default>[]</default>
+      <summary>Sheets</summary>
+      <description>The text panels to draw, up to 4 per monitor. Each entry has monitor (connector name such as DP-1), path (empty for the built-in welcome text), x and y (pixels from the monitor's top-left corner), opacity (percent) and padding (pixels). Empty shows the built-in text on the left-most monitor. The limits are applied in sheets.js.</description>
     </key>
   </schema>
 </schemalist>

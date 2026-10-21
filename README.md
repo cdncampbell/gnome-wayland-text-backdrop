@@ -19,15 +19,18 @@ Other escape sequences, like cursor movement, are dropped. The panel uses DejaVu
 
 Open the settings from the Extensions app, or with `gnome-extensions prefs text-backdrop@cdncampbell.github.io`. Every change applies to the desktop straight away.
 
+The settings window has a tab for each connected monitor, left to right. Each monitor can show up to 4 sheets: **Add sheet** adds one, and the bin icon removes it. Each sheet has:
+
 | Setting | What it does |
 |---------|--------------|
-| Monitor | Which screen to draw on, remembered by connector (DP-1, DP-2...). **Auto** uses the left-most monitor, which is also the fallback when the chosen one isn't plugged in. |
 | Text file | The file to show. **Use built-in** goes back to the welcome text (`welcome.ans`). The desktop redraws when the file changes. If the file can't be read, a one-line note shows where the text would be, and the file is picked up once it appears (for example, when a drive mounts). |
+| Left, Top | Where the panel sits, measured from the monitor's top-left corner, in pixels. The sliders go up to that monitor's width and height. |
 | Background opacity | The panel behind the text, 0–100%. 0 shows the text only. |
 | Padding | Space between the panel edge and the text, in pixels. |
-| Left margin, Top margin | Where the panel sits, measured from the monitor's top-left corner, in pixels. |
 
-The settings live in `schemas/org.gnome.shell.extensions.text-backdrop.gschema.xml`. The settings pane takes each label, description and range from there.
+Monitors are remembered by connector (DP-1, HDMI-1...), so a sheet stays on the same screen when monitors are rearranged. When a monitor is unplugged, its sheets are hidden until it comes back; the settings window keeps a "(not connected)" tab for it so its sheets can still be edited or removed. With no sheets at all, the welcome text shows on the left-most monitor.
+
+All sheets are stored in one setting, `sheets`, in `schemas/org.gnome.shell.extensions.text-backdrop.gschema.xml`. Each field's label, default and range are in `sheets.js`.
 
 ## Example: KB16 macropad cheat sheet
 
@@ -41,12 +44,14 @@ The settings live in `schemas/org.gnome.shell.extensions.text-backdrop.gschema.x
 | Path | What it is |
 |------|------------|
 | `extension.js`, `stylesheet.css`, `metadata.json` | The extension. |
-| `prefs.js` | The settings pane. |
-| `schemas/` | The settings and their defaults. |
+| `prefs.js`, `prefs/` | The settings window: a tab per monitor, and a group per sheet. |
+| `schemas/` | The `sheets` setting. |
+| `sheets.js` | The sheets model: field defaults and ranges, validation, and which sheets show on which monitor. Shared by the shell and the settings window. |
+| `sheetPanel.js` | One panel on the desktop: its label, file watch and position. |
 | `ansi.js` | Converts ANSI colour codes to Pango markup for the desktop label. |
-| `panel.js` | Picks the monitor and builds the panel style. It has no shell imports, so it can be tested. |
+| `panel.js` | Picks a monitor and builds the panel style. It has no shell imports, so it can be tested. |
 | `welcome.ans` | The built-in text shown until a file is chosen. |
-| `tests/` | Parser and panel tests, plus a check that the welcome text and the KB16 example are valid Pango markup. |
+| `tests/` | Parser, panel and sheets-model tests, plus a check that the welcome text and the KB16 example are valid Pango markup. |
 | `examples/kb16/` | The KB16 example sheet and its generator. |
 
 ## Commands
