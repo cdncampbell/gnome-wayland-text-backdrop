@@ -29,7 +29,12 @@ function listMonitors(sheets) {
     for (let i = 0; i < list.get_n_items(); i++) {
         const monitor = list.get_item(i);
         const {x, width, height} = monitor.get_geometry();
-        monitors.push({connector: monitor.get_connector(), description: monitor.get_description(), connected: true, x, width, height});
+        monitors.push({
+            connector: monitor.get_connector(),
+            description: monitor.get_description(),
+            connected: true,
+            x, width, height,
+        });
     }
     monitors.sort((a, b) => a.x - b.x);
 
